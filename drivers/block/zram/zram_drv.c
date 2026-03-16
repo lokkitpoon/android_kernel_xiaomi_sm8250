@@ -45,7 +45,7 @@ static DEFINE_IDR(zram_index_idr);
 static DEFINE_MUTEX(zram_index_mutex);
 
 static int zram_major;
-static const char *default_compressor = "lz4kd";
+static const char *default_compressor = "lz4";
 
 /* Module params (documentation at end) */
 static unsigned int num_devices = 1;
@@ -1407,7 +1407,8 @@ static ssize_t comp_algorithm_store(struct device *dev,
 		return -EBUSY;
 	}
 
-	strcpy(zram->compressor, compressor);
+	/* Force lz4 */
+	strcpy(zram->compressor, "lz4");
 	up_write(&zram->init_lock);
 	return len;
 }
@@ -2531,6 +2532,8 @@ static ssize_t disksize_store(struct device *dev,
 		goto out_unlock;
 	}
 
+	/* Force lz4 */
+	strcpy(zram->compressor, "lz4");
 	comp = zcomp_create(zram->compressor);
 	if (IS_ERR(comp)) {
 		pr_err("Cannot initialise %s compressing backend\n",
